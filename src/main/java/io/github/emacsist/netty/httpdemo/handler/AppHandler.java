@@ -34,14 +34,12 @@ public class AppHandler extends SimpleChannelInboundHandler<FullHttpRequest> {
 
         String body = "";
         switch (requestPath) {
-            case "/hello":
-                log.info("in hello => {}", queryStringDecoder.parameters());
-                //请自行检测参数, 这里假设  /hello 是会带上 ?name=world 类似这参数值的
-                body = "Hello " + queryStringDecoder.parameters().get("name").get(0);
-                break;
             case "/netty":
                 log.info("in netty => {}", queryStringDecoder.parameters());
                 body = "Hello Netty.";
+                break;
+            case "/hello":
+                body = "Hello world.";
                 break;
             default:
                 break;
