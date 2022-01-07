@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ChannelHandler.Sharable
-public class AppInitializer extends ChannelInitializer {
+public class HttpServerInitlizer extends ChannelInitializer {
     private static final int MB = 1024 * 1024;
     @Autowired
     private AppHandler appHandler;
