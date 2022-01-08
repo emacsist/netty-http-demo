@@ -1,4 +1,4 @@
-package io.github.emacsist.netty.httpdemo.config;
+package io.github.emacsist.netty.httpdemo.handler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

@@ -1,7 +1,6 @@
 package io.github.emacsist.netty.httpdemo.config;
 
-import io.github.emacsist.netty.httpdemo.handler.AppHandler;
-import io.netty.channel.Channel;
+import io.github.emacsist.netty.httpdemo.handler.WebSocketFrameHandler;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.ChannelPipeline;
@@ -10,8 +9,6 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketServerCompressionHandler;
-import io.netty.handler.ssl.SslContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
