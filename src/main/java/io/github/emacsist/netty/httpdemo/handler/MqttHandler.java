@@ -17,6 +17,7 @@ import io.netty.handler.codec.mqtt.MqttPublishMessage;
 import io.netty.handler.codec.mqtt.MqttPublishVariableHeader;
 import io.netty.handler.codec.mqtt.MqttQoS;
 import io.netty.handler.codec.mqtt.MqttSubAckMessage;
+import io.netty.handler.codec.mqtt.MqttSubAckPayload;
 import io.netty.handler.codec.mqtt.MqttSubscribePayload;
 import io.netty.handler.codec.mqtt.MqttUnsubAckMessage;
 import io.netty.handler.codec.mqtt.MqttUnsubscribeMessage;
@@ -58,14 +59,11 @@ public class MqttHandler extends SimpleChannelInboundHandler<MqttMessage> {
             case SUBSCRIBE:
                 MqttMessageIdAndPropertiesVariableHeader varHeader = (MqttMessageIdAndPropertiesVariableHeader) mqttMessage.variableHeader();
                 MqttSubscribePayload subscribePayload = (MqttSubscribePayload) mqttMessage.payload();
-                final List<MqttQoS> qosList = subscribePayload.topicSubscriptions().stream().map(e -> MqttQoS.AT_LEAST_ONCE).collect(Collectors.toList());
-                final MqttSubAckMessage subAck = MqttMessageBuilders
-                        .subAck()
-                        .packetId(varHeader.messageId())
-                        .addGrantedQoses(qosList.toArray(new MqttQoS[0]))
-                        .build();
+                final List<Integer> qosList = subscribePayload.topicSubscriptions().stream().map(e -> mqttMessage.fixedHeader().qosLevel().value()).collect(Collectors.toList());
+                MqttSubAckPayload subAckPayload = new MqttSubAckPayload(qosList);
+                final MqttSubAckMessage subAck = new MqttSubAckMessage(mqttMessage.fixedHeader(), varHeader, subAckPayload);
                 ctx.writeAndFlush(subAck);
-                System.out.println("sub ack...");
+                System.out.println("sub ack... " + subAck);
                 break;
             case UNSUBSCRIBE:
                 final MqttUnsubscribeMessage unsubMqttMessage = (MqttUnsubscribeMessage) mqttMessage;
@@ -76,16 +74,17 @@ public class MqttHandler extends SimpleChannelInboundHandler<MqttMessage> {
                 break;
             case PUBLISH:
                 final MqttPublishMessage pubMqttMessage = (MqttPublishMessage) mqttMessage;
-                MqttPublishVariableHeader varHeader1 = (MqttPublishVariableHeader) mqttMessage.variableHeader();
-                final MqttMessage pubAck = MqttMessageBuilders.pubAck()
-                        .packetId(varHeader1.packetId() < 0 ? 1 : varHeader1.packetId())
-                        .build();
-                ctx.writeAndFlush(pubAck);
+//                MqttPublishVariableHeader varHeader1 = (MqttPublishVariableHeader) mqttMessage.variableHeader();
+//                final MqttMessage pubAck = MqttMessageBuilders.pubAck()
+//                        .packetId(varHeader1.packetId() < 0 ? 1 : varHeader1.packetId())
+//                        .build();
+                //ctx.writeAndFlush(pubAck);
                 final String pubTopicName = pubMqttMessage.variableHeader().topicName();
                 System.out.println("收到发布的内容: " + pubMqttMessage.payload().toString(StandardCharsets.UTF_8));
                 final MqttPublishMessage serverPubMsg = MqttMessageBuilders.publish().payload(pubMqttMessage.payload().retain()).qos(MqttQoS.AT_MOST_ONCE).topicName(pubTopicName).build();
+                System.out.println("有 " + channels.size() + " 个订阅者");
                 channels.writeAndFlush(serverPubMsg);
-                System.out.println("publish Ack...");
+//                System.out.println("publish Ack...");
                 break;
             case PINGREQ:
                 MqttFixedHeader pingRespHeader = new MqttFixedHeader(MqttMessageType.PINGRESP, false, MqttQoS.AT_MOST_ONCE, false, 0);
