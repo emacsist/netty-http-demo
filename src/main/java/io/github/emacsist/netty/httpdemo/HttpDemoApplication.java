@@ -38,11 +38,12 @@ public class HttpDemoApplication implements CommandLineRunner {
         final EventLoopGroup worker = new NioEventLoopGroup();
         try {
             serverBootstrap
+                    .handler(new LoggingHandler(LogLevel.DEBUG))
                     .option(ChannelOption.SO_BACKLOG, 4 * KB)
                     .option(ChannelOption.TCP_NODELAY, true)
                     .group(master, worker)
                     .channel(NioServerSocketChannel.class)
-                    .handler(new LoggingHandler(LogLevel.DEBUG))
+                    .childHandler(new LoggingHandler(LogLevel.DEBUG))
                     .childHandler(appInitializer);
             final Channel ch = serverBootstrap.bind(port).sync().channel();
             System.out.println("start app ok...");
